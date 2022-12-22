@@ -1,0 +1,46 @@
+#include <A4988.h>
+#include <math.h>
+
+#define MOTOR_STEPS 200
+#define DIR 8
+#define STEP 9
+#define MS1 10
+#define MS2 11
+#define MS3 12
+A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3);
+
+int rpm_max = ;  //maximum angular velocity in rpm
+float omega_max = rpm_max*0.105 //maximum angular velocity in rad/s
+float fadein = ;//time stamp when fadein complete t1
+float height = ;//height lift want to execute 
+float theta = ;
+float end = (theta/omega_max) + 1.33*fadein ;//time stamp when operation is complete t3
+float fadeout = end-fadein ;// time stamp when start fadeout t2
+float t0 = 0;
+float delta = 0;
+float omega = 0; // current omega
+
+omega_in = (-omaga_max/(pow(fadein, 2)))*pow(t-fadein, 2) + omega_max // fadein angular velocity in function of t when 0<t<t1
+omega_out = (-omega_max/pow(end-fadeout, 2))*pow(t-fadeout, 2) + omega_max // fadeout angular velocity in function of t when t2<t<t3
+
+void setup() {
+  // put your setup code here, to run once:
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  t = millis();
+  if 0 <= t < fadein {
+    omega = omega_in;
+  }
+  else if fadein <= t < fadeout{
+    omega = omega_max;
+  }
+  else if fadeout <= t < end{
+    omega = omega_out;
+  }
+  delta = t-t0 ;
+  stepper.begin(omega,1);
+  stepper.rotate(delta*omega*0.017);
+  t0 = t ;
+}
