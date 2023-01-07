@@ -9,19 +9,20 @@
 #define MS3 7
 A4988 stepper(MOTOR_STEPS, DIR, STEP, MS1, MS2, MS3);
 
-int rpm_max = 100;  //maximum angular velocity in rpm
+int rpm_max = 200;  //maximum angular velocity in rpm 
 float omega_max = rpm_max*0.105 ;//maximum angular velocity in rad/s
-float fadein = 10;//time stamp when fadein complete t1
-float height = 0;//height lift want to execute float theta = 20;
-float theta = 50;
+float fadein = 3;//time stamp when fadein complete t1
+float height = 5;//height(cm) lift want to execute float theta = 20;
+float theta = height*15.7;
 float t_default = theta/omega_max;
-float end = (theta/omega_max) + 1.33*fadein ;//time stamp when operation is complete t3
+float end = (theta/omega_max) + 0.67*fadein ;//time stamp when operation is complete t3
 float fadeout = end-fadein ;// time stamp when start fadeout t2
 float t0 = 0;
 float delta = 0;
 float omega = 0; // current omega
 float current_theta = 0;
 float total_theta = 0;
+bool adjust = false ;
 
 float omega_in(float omega_max,float fadein,float t){ //output omega (in rpm)
   float omega = (-omega_max/(pow(fadein, 2)))*pow(t-fadein, 2) + omega_max ; 
@@ -78,13 +79,18 @@ void loop() {
     Serial.print(" ");
     Serial.println(total_theta*0.0175);
   }
+ else{
+    if ((total_theta != theta) && (adjust == false)) {
+      stepper.begin(omega_max,4);
+      stepper.rotate(theta - (total_theta*0.0175));
+      adjust = true;
+      
+    }
+  }
   t0 = t ;
   delay(5);
 }
 
-//to-do
-// fixed area under the curve problem 
-// make and adjus the angular distance to match the encoder
 
 
 
